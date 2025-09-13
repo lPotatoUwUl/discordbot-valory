@@ -10,6 +10,17 @@ import re
 MODEL_PATH = "models/llama-2-7b-chat.Q5_K_M.gguf"
 llm = Llama(MODEL_PATH, n_ctx=4096, n_gpu_layers=50, use_mmap=True, verbose=False)
 
+# Warmup: run a dummy inference to load model weights and initialize GPU layers
+try:
+    _ = llm(
+        "[INST] <<SYS>> Warmup. <</SYS>> Hello! [/INST]",
+        max_tokens=8,
+        temperature=0.0,
+        stream=False
+    )
+except Exception as e:
+    print(f"Warmup failed: {e}")
+
 app = Flask(__name__)
 @app.route("/healthcheck", methods=["GET"])
 def healthcheck():
